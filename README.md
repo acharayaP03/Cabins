@@ -1,8 +1,13 @@
-# React + Vite
+# My Cabins
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a booking management app for "The Nature Cabins".
+Here we will allow The nature cabins user to manage bookings, guest and other operational stuff.
 
-Currently, two official plugins are available:
+## Operations
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Booking management (CRUD).
+- Duplicate Booking
+- Checking and Checkout
+- Add new user
+- Generate invoice
+- Payment
