@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { formatCurrency } from '@/utils/helpers';
 import { deleteCabin } from '@/services/apiCabins';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const TableRow = styled.div`
 	display: grid;
@@ -46,8 +46,16 @@ const Discount = styled.div`
 
 function CabinRow({ cabin }) {
 	const { id, name, maxCapacity, regularPrice, discount, image } = cabin;
+
+	// access queryClient with useQueryClient
+	const queryClient = useQueryClient();
 	const { isLoading: isDeleting, mutate } = useMutation({
 		mutationFn: (id) => deleteCabin(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['cabins'],
+			});
+		},
 	});
 	return (
 		<TableRow role='row'>
