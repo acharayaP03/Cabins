@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+
 import { formatCurrency } from '@/utils/helpers';
+import { deleteCabin } from '@/services/apiCabins';
+import { useMutation } from '@tanstack/react-query';
 
 const TableRow = styled.div`
 	display: grid;
@@ -42,7 +45,10 @@ const Discount = styled.div`
 `;
 
 function CabinRow({ cabin }) {
-	const { name, maxCapacity, regularPrice, discount, image } = cabin;
+	const { id, name, maxCapacity, regularPrice, discount, image } = cabin;
+	const { isLoading: isDeleting, mutate } = useMutation({
+		mutationFn: (id) => deleteCabin(id),
+	});
 	return (
 		<TableRow role='row'>
 			<Img src={image} alt='' />
@@ -50,13 +56,16 @@ function CabinRow({ cabin }) {
 			<div role='cell'>Fits up to {maxCapacity}</div>
 			<Price role='cell'>{formatCurrency(regularPrice)}</Price>
 			<Discount role='cell'>{formatCurrency(discount)}</Discount>
-			<button>delete</button>
+			<button onClick={() => mutate(id)} disabled={isDeleting}>
+				delete
+			</button>
 		</TableRow>
 	);
 }
 
 CabinRow.propTypes = {
 	cabin: PropTypes.shape({
+		id: PropTypes.string.isRequired,
 		name: PropTypes.string.isRequired,
 		maxCapacity: PropTypes.number.isRequired,
 		regularPrice: PropTypes.number.isRequired,
