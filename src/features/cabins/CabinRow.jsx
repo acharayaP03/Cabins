@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { formatCurrency } from '@/utils/helpers';
 import { deleteCabin } from '@/services/apiCabins';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 const TableRow = styled.div`
 	display: grid;
@@ -52,13 +53,13 @@ function CabinRow({ cabin }) {
 	const { isLoading: isDeleting, mutate } = useMutation({
 		mutationFn: (id) => deleteCabin(id),
 		onSuccess: () => {
-			alert('Cabin deleted');
+			toast.success('Cabin successfully deleted');
 			queryClient.invalidateQueries({
 				queryKey: ['cabins'],
 			});
 		},
 		onError: (error) => {
-			alert(error.message);
+			toast.error(error.message);
 		},
 	});
 	return (
@@ -82,7 +83,7 @@ CabinRow.propTypes = {
 		maxCapacity: PropTypes.number.isRequired,
 		regularPrice: PropTypes.number.isRequired,
 		discount: PropTypes.number.isRequired,
-		image: PropTypes.string.isRequired,
+		image: PropTypes.string,
 	}).isRequired,
 };
 
