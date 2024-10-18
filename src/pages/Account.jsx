@@ -1,5 +1,5 @@
-import Heading from '../ui/Heading';
-import Row from '../ui/Row';
+import Heading from '../ui/Common/Heading';
+import Row from '../ui/Grid/Row';
 
 function Account() {
 	return (

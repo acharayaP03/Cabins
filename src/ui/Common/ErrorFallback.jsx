@@ -1,9 +1,6 @@
 import styled from 'styled-components';
 
-import { useMoveBack } from '../hooks/useMoveBack';
-import Heading from '../ui/Common/Heading';
-
-const StyledPageNotFound = styled.main`
+const StyledErrorFallback = styled.main`
 	height: 100vh;
 	background-color: var(--color-grey-50);
 	display: flex;
@@ -13,7 +10,7 @@ const StyledPageNotFound = styled.main`
 `;
 
 const Box = styled.div`
-	/* box */
+	/* Box */
 	background-color: var(--color-grey-0);
 	border: 1px solid var(--color-grey-100);
 	border-radius: var(--border-radius-md);
@@ -23,23 +20,24 @@ const Box = styled.div`
 	text-align: center;
 
 	& h1 {
+		margin-bottom: 1.6rem;
+	}
+
+	& p {
+		font-family: 'Sono';
 		margin-bottom: 3.2rem;
+		color: var(--color-grey-500);
 	}
 `;
 
-function PageNotFound() {
-	const moveBack = useMoveBack();
-
+export default function ErrorFallback({ error }) {
 	return (
-		<StyledPageNotFound>
+		<StyledErrorFallback>
 			<Box>
-				<Heading as='h1'>The page you are looking for could not be found</Heading>
-				<button onClick={moveBack} size='large'>
-					&larr; Go back
-				</button>
+				<h1>Something went wrong</h1>
+				<p>{error.message}</p>
+				<button onClick={() => window.location.reload()}>Reload</button>
 			</Box>
-		</StyledPageNotFound>
+		</StyledErrorFallback>
 	);
 }
-
-export default PageNotFound;

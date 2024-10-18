@@ -1,9 +1,8 @@
 import { useState } from 'react';
-
-import Heading from '@/ui/Heading';
-import Row from '@/ui/Row';
+import { Heading } from '@/ui/Common';
+import { Row } from '@/ui/Grid';
+import { Button } from '@/ui/Buttons';
 import CabinTable from '@/features/cabins/CabinTable';
-import Button from '@/ui/Button';
 import CreateCabinForm from '@/features/cabins/CreateCabinForm';
 
 function Cabins() {
