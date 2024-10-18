@@ -16,6 +16,10 @@ export default defineConfig({
 			exclude: ['tests/**/*.test.{js,jsx}', 'tests/setupTests.js'],
 		},
 	},
+	envDir: './', // Load environment variables from the root,
+	define: {
+		'import.meta.vitest': 'true', // Fix for potential import.meta issues in testing
+	},
 	resolve: {
 		alias: {
 			'@': '/src',
