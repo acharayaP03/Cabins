@@ -12,7 +12,7 @@ export default defineConfig({
 			enabled: true, // Enable coverage reporting
 			reporter: ['text', 'html'], // Generate text and HTML reports
 			all: true, // Include all files, even those not directly tested
-			include: ['tests/**/*.{js,jsx}'], // Specify which files to include
+			include: ['tests/**/*.{js,jsx}', 'tests/unit/**/*.test.js'], // Specify which files to include
 			exclude: ['tests/**/*.test.{js,jsx}', 'tests/setupTests.js'],
 		},
 	},
