@@ -13,7 +13,9 @@ export async function getCabins() {
 
 export async function createCabin(newCabin) {
 	const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll('/', '');
-	const imagePath = `${import.meta.env.VITE_SUPABAE_URL}/${imageName}`; //
+	const imagePath = `${
+		import.meta.env.VITE_SUPABAE_URL
+	}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
 
 	let { error, data } = await supabase.from('cabins').insert([{ ...newCabin, image: imagePath }]);
 
