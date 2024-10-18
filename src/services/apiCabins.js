@@ -13,7 +13,9 @@ export async function getCabins() {
 
 export async function createCabin(newCabin) {
 	const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll('/', '');
-	const imagePath = `${import.meta.env.VITE_SUPABAE_URL}/${imageName}`; //
+	const imagePath = `${
+		import.meta.env.VITE_SUPABAE_URL
+	}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
 
 	let { error, data } = await supabase.from('cabins').insert([{ ...newCabin, image: imagePath }]);
 
@@ -28,11 +30,11 @@ export async function createCabin(newCabin) {
 
 	// if there is an error uploading the image, delete the cabin, dont create it
 	if (storageError) {
+		console.log('Cabin deleted', data);
 		await supabase.from('cabins').delete().eq('id', data.id);
 		console.error(storageError);
 		throw new Error('Cabin image could not be uploaded');
 	}
-	console.log(data);
 	return data;
 }
 
