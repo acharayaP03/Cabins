@@ -1,89 +1,160 @@
-import styled from "styled-components";
+import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createCabin } from '@/services/apiCabins';
+import { toast } from 'react-hot-toast';
 
-import Input from "../../ui/Input";
-import Form from "../../ui/Form";
-import Button from "../../ui/Button";
-import FileInput from "../../ui/FileInput";
-import Textarea from "../../ui/Textarea";
-
-const FormRow = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
-
-  padding: 1.2rem 0;
-
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-`;
-
-const Error = styled.span`
-  font-size: 1.4rem;
-  color: var(--color-red-700);
-`;
+import Input from '@/ui/Input';
+import Form from '@/ui/Form';
+import Button from '@/ui/Button';
+import FileInput from '@/ui/FileInput';
+import Textarea from '@/ui/Textarea';
+import FormRow from '@/ui/FormComponent/FormRow';
 
 function CreateCabinForm() {
-  return (
-    <Form>
-      <FormRow>
-        <Label htmlFor="name">Cabin name</Label>
-        <Input type="text" id="name" />
-      </FormRow>
+	const { register, handleSubmit, reset, getValues, formState } = useForm();
+	const { errors } = formState;
 
-      <FormRow>
-        <Label htmlFor="maxCapacity">Maximum capacity</Label>
-        <Input type="number" id="maxCapacity" />
-      </FormRow>
+	const queryClient = useQueryClient();
 
-      <FormRow>
-        <Label htmlFor="regularPrice">Regular price</Label>
-        <Input type="number" id="regularPrice" />
-      </FormRow>
+	const { mutate, isLoading: isCreating } = useMutation({
+		mutationFn: (newCabin) => createCabin(newCabin),
+		onSuccess: () => {
+			toast.success('Cabin successfully added');
+			queryClient.invalidateQueries({
+				queryKey: ['cabins'],
+			});
 
-      <FormRow>
-        <Label htmlFor="discount">Discount</Label>
-        <Input type="number" id="discount" defaultValue={0} />
-      </FormRow>
+			reset(); // reset the form
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
 
-      <FormRow>
-        <Label htmlFor="description">Description for website</Label>
-        <Textarea type="number" id="description" defaultValue="" />
-      </FormRow>
+	const handleFormSubmit = (data) => {
+		mutate(data);
+	};
 
-      <FormRow>
-        <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" />
-      </FormRow>
+	/**
+	 * @description this function is called when there are errors in the form, that has required fields
+	 * @param {*} errors
+	 * @returns error messages on fields that have errors
+	 */
+	const onErrors = (errors) => {};
 
-      <FormRow>
-        {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
-          Cancel
-        </Button>
-        <Button>Edit cabin</Button>
-      </FormRow>
-    </Form>
-  );
+	/**
+	 * NOTE: The `handleSubmit` function from react-hook-form is a wrapper around the native form submit event.
+	 * It will collect the form data and call the `onSubmit` function with the data.
+	 * we need to sanitize the data before sending it to the server, ie some of the keys need to be converted to snake case, suce as
+	 * max_capacity, regular_price since these are the keys that the server expects.
+	 * hence why on register function we passing sanke case keys for max_capacity, regular_price.
+	 */
+
+	const cabinLabelProps = {
+		label: 'Cabin name',
+		error: errors?.name?.message,
+	};
+
+	const capacityLabelProps = {
+		label: 'Maximum capacity',
+		error: errors?.max_capacity?.message,
+	};
+
+	const priceLabelProps = {
+		label: 'Regular price',
+		error: errors?.regular_price?.message,
+	};
+
+	const discountLabelProps = {
+		label: 'Discount',
+		error: errors?.discount?.message,
+	};
+
+	const descriptionLabelProps = {
+		label: 'Description for website',
+		error: errors?.description?.message,
+	};
+
+	const imageLabelProps = {
+		label: 'Cabin photo',
+	};
+	return (
+		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
+			<FormRow {...cabinLabelProps}>
+				<Input
+					type='text'
+					id='name'
+					disabled={isCreating}
+					{...register('name', {
+						required: 'Cabin name is required',
+						minLength: { value: 3, message: 'Cabin name must be at least 3 characters long' },
+					})}
+				/>
+			</FormRow>
+
+			<FormRow {...capacityLabelProps}>
+				<Input
+					type='number'
+					id='maxCapacity'
+					disabled={isCreating}
+					{...register('max_capacity', {
+						required: 'Maximum capacity is required',
+					})}
+				/>
+			</FormRow>
+
+			<FormRow {...priceLabelProps}>
+				<Input
+					type='number'
+					id='regularPrice'
+					disabled={isCreating}
+					{...register('regular_price', {
+						required: 'Regular price is required',
+						min: { value: 1, message: 'Regular price must be at least 1' },
+					})}
+				/>
+			</FormRow>
+
+			<FormRow {...discountLabelProps}>
+				<Input
+					type='number'
+					id='discount'
+					defaultValue={0}
+					disabled={isCreating}
+					{...register('discount', {
+						required: 'Discount is required',
+						validate: (value) =>
+							Number(value) <= Number(getValues().regular_price) ||
+							'Discount must be less than or equal to regular price',
+					})}
+				/>
+			</FormRow>
+
+			<FormRow {...descriptionLabelProps}>
+				<Textarea
+					type='number'
+					id='description'
+					defaultValue=''
+					disabled={isCreating}
+					{...register('description', {
+						required: 'Description is required',
+					})}
+				/>
+			</FormRow>
+
+			<FormRow {...cabinLabelProps}>
+				<FileInput id='image' accept='image/*' />
+			</FormRow>
+
+			<FormRow>
+				{/* type is an HTML attribute! */}
+				<Button variation='secondary' type='reset'>
+					Cancel
+				</Button>
+				<Button disabled={isCreating}>Add cabin</Button>
+			</FormRow>
+		</Form>
+	);
 }
 
 export default CreateCabinForm;

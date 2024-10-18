@@ -8,6 +8,8 @@ export default defineConfig({
 		environment: 'jsdom',
 		setupFiles: 'tests/setupTests.js',
 		globals: true,
+		watch: true,
+		ui: true,
 		coverage: {
 			enabled: true, // Enable coverage reporting
 			reporter: ['text', 'html'], // Generate text and HTML reports
