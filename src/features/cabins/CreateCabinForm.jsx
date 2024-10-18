@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createCabin } from '@/services/apiCabins';
@@ -9,48 +8,12 @@ import Form from '@/ui/Form';
 import Button from '@/ui/Button';
 import FileInput from '@/ui/FileInput';
 import Textarea from '@/ui/Textarea';
-
-const FormRow = styled.div`
-	display: grid;
-	align-items: center;
-	grid-template-columns: 24rem 1fr 1.2fr;
-	gap: 2.4rem;
-
-	padding: 1.2rem 0;
-
-	&:first-child {
-		padding-top: 0;
-	}
-
-	&:last-child {
-		padding-bottom: 0;
-	}
-
-	&:not(:last-child) {
-		border-bottom: 1px solid var(--color-grey-100);
-	}
-
-	&:has(button) {
-		display: flex;
-		justify-content: flex-end;
-		gap: 1.2rem;
-	}
-`;
-
-const Label = styled.label`
-	font-weight: 500;
-`;
-
-const Error = styled.span`
-	font-size: 1.4rem;
-	color: var(--color-red-700);
-`;
+import FormRow from '@/ui/FormComponent/FormRow';
 
 function CreateCabinForm() {
 	const { register, handleSubmit, reset, getValues, formState } = useForm();
 	const { errors } = formState;
 
-	console.log(errors);
 	const queryClient = useQueryClient();
 
 	const { mutate, isLoading: isCreating } = useMutation({
@@ -77,7 +40,7 @@ function CreateCabinForm() {
 	 * @param {*} errors
 	 * @returns error messages on fields that have errors
 	 */
-	const onErrors = (errors) => console.log(errors);
+	const onErrors = (errors) => {};
 
 	/**
 	 * NOTE: The `handleSubmit` function from react-hook-form is a wrapper around the native form submit event.
@@ -86,77 +49,100 @@ function CreateCabinForm() {
 	 * max_capacity, regular_price since these are the keys that the server expects.
 	 * hence why on register function we passing sanke case keys for max_capacity, regular_price.
 	 */
+
+	const cabinLabelProps = {
+		label: 'Cabin name',
+		error: errors?.name?.message,
+	};
+
+	const capacityLabelProps = {
+		label: 'Maximum capacity',
+		error: errors?.max_capacity?.message,
+	};
+
+	const priceLabelProps = {
+		label: 'Regular price',
+		error: errors?.regular_price?.message,
+	};
+
+	const discountLabelProps = {
+		label: 'Discount',
+		error: errors?.discount?.message,
+	};
+
+	const descriptionLabelProps = {
+		label: 'Description for website',
+		error: errors?.description?.message,
+	};
+
+	const imageLabelProps = {
+		label: 'Cabin photo',
+	};
 	return (
 		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
-			<FormRow>
-				<Label htmlFor='name'>Cabin name</Label>
+			<FormRow {...cabinLabelProps}>
 				<Input
 					type='text'
 					id='name'
+					disabled={isCreating}
 					{...register('name', {
 						required: 'Cabin name is required',
 						minLength: { value: 3, message: 'Cabin name must be at least 3 characters long' },
 					})}
 				/>
-				{errors?.name?.message && <Error>{errors.name.message}</Error>}
 			</FormRow>
 
-			<FormRow>
-				<Label htmlFor='maxCapacity'>Maximum capacity</Label>
+			<FormRow {...capacityLabelProps}>
 				<Input
 					type='number'
 					id='maxCapacity'
+					disabled={isCreating}
 					{...register('max_capacity', {
 						required: 'Maximum capacity is required',
 					})}
 				/>
-				{errors?.max_capacity?.message && <Error>{errors.max_capacity.message}</Error>}
 			</FormRow>
 
-			<FormRow>
-				<Label htmlFor='regularPrice'>Regular price</Label>
+			<FormRow {...priceLabelProps}>
 				<Input
 					type='number'
 					id='regularPrice'
+					disabled={isCreating}
 					{...register('regular_price', {
 						required: 'Regular price is required',
 						min: { value: 1, message: 'Regular price must be at least 1' },
 					})}
 				/>
-				{errors?.regular_price?.message && <Error>{errors.regular_price.message}</Error>}
 			</FormRow>
 
-			<FormRow>
-				<Label htmlFor='discount'>Discount</Label>
+			<FormRow {...discountLabelProps}>
 				<Input
 					type='number'
 					id='discount'
 					defaultValue={0}
+					disabled={isCreating}
 					{...register('discount', {
 						required: 'Discount is required',
 						validate: (value) =>
-							value <= getValues().regular_price ||
+							Number(value) <= Number(getValues().regular_price) ||
 							'Discount must be less than or equal to regular price',
 					})}
 				/>
-				{errors?.discount?.message && <Error>{errors.discount.message}</Error>}
 			</FormRow>
 
-			<FormRow>
-				<Label htmlFor='description'>Description for website</Label>
+			<FormRow {...descriptionLabelProps}>
 				<Textarea
 					type='number'
 					id='description'
 					defaultValue=''
+					disabled={isCreating}
 					{...register('description', {
 						required: 'Description is required',
 					})}
 				/>
-				{errors?.description?.message && <Error>{errors.description.message}</Error>}
 			</FormRow>
 
-			<FormRow>
-				<Label htmlFor='image'>Cabin photo</Label>
+			<FormRow {...cabinLabelProps}>
 				<FileInput id='image' accept='image/*' />
 			</FormRow>
 
