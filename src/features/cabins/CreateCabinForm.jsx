@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createCabin } from '@/services/apiCabins';
+import { toast } from 'react-hot-toast';
 
 import Input from '@/ui/Input';
 import Form from '@/ui/Form';
@@ -44,12 +47,33 @@ const Error = styled.span`
 `;
 
 function CreateCabinForm() {
-	const { register, handleSubmit } = useForm();
+	const { register, handleSubmit, reset } = useForm();
+	const queryClient = useQueryClient();
 
-	const handleFormSubmit = (data) => {
-		console.log(data);
-	};
+	const { mutate, isLoading: isCreating } = useMutation({
+		mutationFn: (newCabin) => createCabin(newCabin),
+		onSuccess: () => {
+			toast.success('Cabin successfully added');
+			queryClient.invalidateQueries({
+				queryKey: ['cabins'],
+			});
 
+			reset(); // reset the form
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
+
+	const handleFormSubmit = (data) => mutate(data);
+
+	/**
+	 * NOTE: The `handleSubmit` function from react-hook-form is a wrapper around the native form submit event.
+	 * It will collect the form data and call the `onSubmit` function with the data.
+	 * we need to sanitize the data before sending it to the server, ie some of the keys need to be converted to snake case, suce as
+	 * max_capacity, regular_price since these are the keys that the server expects.
+	 * hence why on register function we passing sanke case keys for max_capacity, regular_price.
+	 */
 	return (
 		<Form onSubmit={handleSubmit(handleFormSubmit)}>
 			<FormRow>
@@ -59,12 +83,12 @@ function CreateCabinForm() {
 
 			<FormRow>
 				<Label htmlFor='maxCapacity'>Maximum capacity</Label>
-				<Input type='number' id='maxCapacity' {...register('maxCapacity')} />
+				<Input type='number' id='maxCapacity' {...register('max_capacity')} />
 			</FormRow>
 
 			<FormRow>
 				<Label htmlFor='regularPrice'>Regular price</Label>
-				<Input type='number' id='regularPrice' {...register('regularPrice')} />
+				<Input type='number' id='regularPrice' {...register('regular_price')} />
 			</FormRow>
 
 			<FormRow>
@@ -87,7 +111,7 @@ function CreateCabinForm() {
 				<Button variation='secondary' type='reset'>
 					Cancel
 				</Button>
-				<Button>Add cabin</Button>
+				<Button disabled={isCreating}>Add cabin</Button>
 			</FormRow>
 		</Form>
 	);
