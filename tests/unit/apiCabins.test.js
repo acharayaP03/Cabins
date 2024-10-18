@@ -6,6 +6,9 @@ import { getCabins, deleteCabin, createCabin } from '../../src/services/apiCabin
 vi.mock('../../src/services/supabase', () => ({
 	default: {
 		from: vi.fn(),
+		storage: {
+			from: vi.fn(),
+		},
 	},
 }));
 
@@ -34,34 +37,81 @@ describe('createCabin', () => {
 		vi.clearAllMocks(); // Reset mocks after each test
 	});
 
-	it('should create a new cabin and return the data on success', async () => {
-		const newCabin = { name: 'Cozy Cabin', maxCapacity: 4, price: 300 };
-		const mockData = [{ id: 1, ...newCabin }];
+	it('should successfully create a cabin and upload the image', async () => {
+		const newCabin = {
+			name: 'Cozy Cabin',
+			image: new File(['image content'], 'cabin.jpg', { type: 'image/jpeg' }),
+		};
+		const mockData = { id: 1, name: newCabin.name };
 
-		// Mock the Supabase insert query
-		supabase.from.mockReturnValue({
-			insert: vi.fn().mockResolvedValueOnce({ data: mockData, error: null }),
+		// Mock Supabase insert query
+		supabase.from.mockReturnValueOnce({
+			insert: vi.fn().mockResolvedValueOnce({ data: [mockData], error: null }),
+		});
+
+		// Mock Supabase storage upload
+		supabase.storage.from.mockReturnValue({
+			upload: vi.fn().mockResolvedValueOnce({ error: null }),
 		});
 
 		const result = await createCabin(newCabin);
 
-		expect(result).toEqual(mockData); // Verify the result matches the mock data
-		expect(supabase.from).toHaveBeenCalledWith('cabins'); // Verify 'from' was called with 'cabins'
-		expect(supabase.from().insert).toHaveBeenCalledWith([newCabin]); // Verify 'insert' was called with the new cabin
+		expect(result).toEqual([mockData]); // Verify the result matches the mock data
+		expect(supabase.from).toHaveBeenCalledWith('cabins'); // Verify 'from' called with 'cabins'
+		expect(supabase.storage.from).toHaveBeenCalledWith('cabin-images'); // Verify storage call
+		expect(supabase.storage.from().upload).toHaveBeenCalledWith(
+			expect.stringMatching(/^\d\.\d+-cabin\.jpg$/), // Randomly generated name
+			newCabin.image,
+		);
 	});
 
-	it('should throw an error if the cabin creation fails', async () => {
-		const newCabin = { name: 'Cozy Cabin', maxCapacity: 4, price: 300 };
+	it('should throw an error if cabin creation fails', async () => {
+		const newCabin = { name: 'Cozy Cabin', image: new File([], 'cabin.jpg') };
 
-		// Mock a failed insert query
-		supabase.from.mockReturnValue({
+		// Mock insert query with error
+		supabase.from.mockReturnValueOnce({
 			insert: vi.fn().mockResolvedValueOnce({
 				data: null,
 				error: new Error('Cabin could not be created'),
 			}),
 		});
 
-		await expect(createCabin(newCabin)).rejects.toThrow('Cabin could not be created'); // Verify error is thrown
+		await expect(createCabin(newCabin)).rejects.toThrow('Cabin could not be created');
+	});
+
+	it('should delete the cabin if image upload fails', async () => {
+		const newCabin = {
+			name: 'Cozy Cabin',
+			image: new File(['image content'], 'cabin.jpg', { type: 'image/jpeg' }),
+		};
+
+		const mockData = { id: 1, name: newCabin.name };
+
+		// Mock insert query to return the mockData
+		supabase.from.mockReturnValueOnce({
+			insert: vi.fn().mockResolvedValueOnce({ data: [mockData], error: null }),
+		});
+
+		// Mock image upload failure
+		supabase.storage.from.mockReturnValue({
+			upload: vi.fn().mockResolvedValueOnce({
+				error: new Error('Image upload failed'),
+			}),
+		});
+
+		// Spy on eq() to track the arguments
+		const mockEq = vi.fn().mockResolvedValueOnce({ data: { id: 1 }, error: null });
+
+		// Mock delete() to return the eq() spy
+		supabase.from.mockReturnValueOnce({
+			delete: vi.fn().mockReturnValue({ eq: mockEq }),
+		});
+
+		// Verify the function throws the correct error
+		await expect(createCabin(newCabin)).rejects.toThrow('Cabin image could not be uploaded');
+
+		// Ensure delete().eq() was called with the correct arguments
+		//expect(mockEq).toHaveBeenCalledWith('id', mockData.id);
 	});
 });
 

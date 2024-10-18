@@ -30,11 +30,11 @@ export async function createCabin(newCabin) {
 
 	// if there is an error uploading the image, delete the cabin, dont create it
 	if (storageError) {
+		console.log('Cabin deleted', data);
 		await supabase.from('cabins').delete().eq('id', data.id);
 		console.error(storageError);
 		throw new Error('Cabin image could not be uploaded');
 	}
-	console.log(data);
 	return data;
 }
 
