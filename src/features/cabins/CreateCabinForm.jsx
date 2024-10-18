@@ -6,6 +6,12 @@ import { toast } from 'react-hot-toast';
 import { Button } from '@/ui/Buttons';
 import { Input, Form, FileInput, Textarea, FormRow } from '@/ui/FormComponent';
 
+const spreadPropsToInput = (props) => {
+	return {
+		...props,
+	};
+};
+
 function CreateCabinForm() {
 	const { register, handleSubmit, reset, getValues, formState } = useForm();
 	const { errors } = formState;
@@ -28,7 +34,8 @@ function CreateCabinForm() {
 	});
 
 	const handleFormSubmit = (data) => {
-		mutate(data);
+		console.log(data);
+		mutate({ ...data, image: data.image[0] });
 	};
 
 	/**
@@ -46,37 +53,14 @@ function CreateCabinForm() {
 	 * hence why on register function we passing sanke case keys for max_capacity, regular_price.
 	 */
 
-	const cabinLabelProps = {
-		label: 'Cabin name',
-		error: errors?.name?.message,
-	};
-
-	const capacityLabelProps = {
-		label: 'Maximum capacity',
-		error: errors?.max_capacity?.message,
-	};
-
-	const priceLabelProps = {
-		label: 'Regular price',
-		error: errors?.regular_price?.message,
-	};
-
-	const discountLabelProps = {
-		label: 'Discount',
-		error: errors?.discount?.message,
-	};
-
-	const descriptionLabelProps = {
-		label: 'Description for website',
-		error: errors?.description?.message,
-	};
-
-	const imageLabelProps = {
-		label: 'Cabin photo',
-	};
 	return (
 		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
-			<FormRow {...cabinLabelProps}>
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Cabin name',
+					error: errors?.name?.message,
+				})}
+			>
 				<Input
 					type='text'
 					id='name'
@@ -88,7 +72,12 @@ function CreateCabinForm() {
 				/>
 			</FormRow>
 
-			<FormRow {...capacityLabelProps}>
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Maximum capacity',
+					error: errors?.max_capacity?.message,
+				})}
+			>
 				<Input
 					type='number'
 					id='maxCapacity'
@@ -99,7 +88,12 @@ function CreateCabinForm() {
 				/>
 			</FormRow>
 
-			<FormRow {...priceLabelProps}>
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Regular price',
+					error: errors?.regular_price?.message,
+				})}
+			>
 				<Input
 					type='number'
 					id='regularPrice'
@@ -111,7 +105,12 @@ function CreateCabinForm() {
 				/>
 			</FormRow>
 
-			<FormRow {...discountLabelProps}>
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Discount',
+					error: errors?.discount?.message,
+				})}
+			>
 				<Input
 					type='number'
 					id='discount'
@@ -126,7 +125,12 @@ function CreateCabinForm() {
 				/>
 			</FormRow>
 
-			<FormRow {...descriptionLabelProps}>
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Description for website',
+					error: errors?.description?.message,
+				})}
+			>
 				<Textarea
 					type='number'
 					id='description'
@@ -138,8 +142,18 @@ function CreateCabinForm() {
 				/>
 			</FormRow>
 
-			<FormRow {...cabinLabelProps}>
-				<FileInput id='image' accept='image/*' />
+			<FormRow
+				{...spreadPropsToInput({
+					label: 'Cabin photo',
+				})}
+			>
+				<FileInput
+					id='image'
+					accept='image/*'
+					{...register('image', {
+						required: 'Image is required',
+					})}
+				/>
 			</FormRow>
 
 			<FormRow>
