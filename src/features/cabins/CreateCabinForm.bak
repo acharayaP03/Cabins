@@ -1,6 +1,10 @@
+/**
+* Back up for CreateCabinForm just incase 
+*/
+
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCabin, updateCabin } from '@/services/apiCabins';
+import { createCabin } from '@/services/apiCabins';
 import { toast } from 'react-hot-toast';
 
 import { Button } from '@/ui/Buttons';
@@ -12,26 +16,13 @@ const spreadPropsToInput = (props) => {
 	};
 };
 
-const mapToSnakeCase = (data) => {
-	return {
-		...data,
-		max_capacity: data.maxCapacity,
-		regular_price: data.regularPrice,
-	};
-};
-
-function CreateCabinForm({ cabin = {} }) {
-	const { id: editId, ...editableCabinValues } = cabin;
-	const isCabinBeingEdited = Boolean(editId); // check if the cabin is being edited
-
-	const { register, handleSubmit, reset, getValues, formState } = useForm({
-		defaultValues: isCabinBeingEdited ? mapToSnakeCase(editableCabinValues) : {},
-	});
+function CreateCabinForm() {
+	const { register, handleSubmit, reset, getValues, formState } = useForm();
 	const { errors } = formState;
 
 	const queryClient = useQueryClient();
 
-	const { mutate: createCabinAction, isLoading: isCreating } = useMutation({
+	const { mutate, isLoading: isCreating } = useMutation({
 		mutationFn: (newCabin) => createCabin(newCabin),
 		onSuccess: () => {
 			toast.success('Cabin successfully added');
@@ -45,31 +36,9 @@ function CreateCabinForm({ cabin = {} }) {
 			toast.error(error.message);
 		},
 	});
-	const { mutate: updateCabinAction, isLoading: isUpdatingCabin } = useMutation({
-		mutationFn: ({ updatedCabinData, id }) => updateCabin(updatedCabinData, id),
-		onSuccess: () => {
-			toast.success('Cabin successfully updated');
-			queryClient.invalidateQueries({
-				queryKey: ['cabins'],
-			});
 
-			reset(); // reset the form
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
-	});
-
-	// this will allow user to disable form during editing and creating
-	const isUserActionInProgress = isCreating || isUpdatingCabin;
 	const handleFormSubmit = (data) => {
-		const image = typeof data.image === 'string' ? data.image : data.image[0];
-		if (isCabinBeingEdited) {
-			console.log('data', data);
-			updateCabinAction({ updatedCabinData: { ...data, image }, id: editId });
-		} else {
-			createCabinAction({ ...data, image });
-		}
+		mutate({ ...data, image: data.image[0] });
 	};
 
 	/**
@@ -98,7 +67,7 @@ function CreateCabinForm({ cabin = {} }) {
 				<Input
 					type='text'
 					id='name'
-					disabled={isUserActionInProgress}
+					disabled={isCreating}
 					{...register('name', {
 						required: 'Cabin name is required',
 						minLength: { value: 3, message: 'Cabin name must be at least 3 characters long' },
@@ -115,7 +84,7 @@ function CreateCabinForm({ cabin = {} }) {
 				<Input
 					type='number'
 					id='maxCapacity'
-					disabled={isUserActionInProgress}
+					disabled={isCreating}
 					{...register('max_capacity', {
 						required: 'Maximum capacity is required',
 					})}
@@ -131,7 +100,7 @@ function CreateCabinForm({ cabin = {} }) {
 				<Input
 					type='number'
 					id='regularPrice'
-					disabled={isUserActionInProgress}
+					disabled={isCreating}
 					{...register('regular_price', {
 						required: 'Regular price is required',
 						min: { value: 1, message: 'Regular price must be at least 1' },
@@ -149,7 +118,7 @@ function CreateCabinForm({ cabin = {} }) {
 					type='number'
 					id='discount'
 					defaultValue={0}
-					disabled={isUserActionInProgress}
+					disabled={isCreating}
 					{...register('discount', {
 						required: 'Discount is required',
 						validate: (value) =>
@@ -169,7 +138,7 @@ function CreateCabinForm({ cabin = {} }) {
 					type='number'
 					id='description'
 					defaultValue=''
-					disabled={isUserActionInProgress}
+					disabled={isCreating}
 					{...register('description', {
 						required: 'Description is required',
 					})}
@@ -185,7 +154,7 @@ function CreateCabinForm({ cabin = {} }) {
 					id='image'
 					accept='image/*'
 					{...register('image', {
-						required: isCabinBeingEdited ? false : 'Image is required',
+						required: 'Image is required',
 					})}
 				/>
 			</FormRow>
@@ -195,9 +164,7 @@ function CreateCabinForm({ cabin = {} }) {
 				<Button variation='secondary' type='reset'>
 					Cancel
 				</Button>
-				<Button disabled={isCreating}>
-					{isCabinBeingEdited ? 'Edit cabin' : 'Create new cabin'}
-				</Button>
+				<Button disabled={isCreating}>Add cabin</Button>
 			</FormRow>
 		</Form>
 	);
