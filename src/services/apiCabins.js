@@ -1,4 +1,5 @@
 import supabase from './supabase';
+import { supabaseUrl } from '../appConfig';
 
 export async function getCabins() {
 	let { data: cabins, error } = await supabase.from('cabins').select('*');
@@ -13,11 +14,13 @@ export async function getCabins() {
 
 export async function createCabin(newCabin) {
 	const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll('/', '');
-	const imagePath = `${
-		import.meta.env.VITE_SUPABAE_URL
-	}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
+	const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
 
-	let { error, data } = await supabase.from('cabins').insert([{ ...newCabin, image: imagePath }]);
+	const { error, data } = await supabase
+		.from('cabins')
+		.insert([{ ...newCabin, image: imagePath }])
+		.select()
+		.single();
 
 	if (error) {
 		console.error(error);
@@ -38,6 +41,26 @@ export async function createCabin(newCabin) {
 	return data;
 }
 
+export async function updateCabin(updatedCabin, id) {
+	console.log('updatedCabin', updatedCabin, id);
+	// const doesImagePathAlreadyExist = updatedCabin.image?.startsWith?.(supabaseUrl);
+	// const imageName = `${Math.random()}-${updatedCabin.image.name}`.replaceAll('/', '');
+	// const imagePath = doesImagePathAlreadyExist
+	// 	? updateCabin.image
+	// 	: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+
+	// const { error, data } = await supabase
+	// 	.from('cabins')
+	// 	.update({ ...updatedCabin, image: imagePath })
+	// 	.eq('id', updatedCabin.id);
+
+	// if (error) {
+	// 	console.error(error);
+	// 	throw new Error('Cabin could not be updated');
+	// }
+
+	// return data;
+}
 export async function deleteCabin(id) {
 	let { error, data } = await supabase.from('cabins').delete().eq('id', id);
 
