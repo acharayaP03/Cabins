@@ -42,24 +42,24 @@ export async function createCabin(newCabin) {
 }
 
 export async function updateCabin(updatedCabin, id) {
-	console.log('updatedCabin', updatedCabin, id);
-	// const doesImagePathAlreadyExist = updatedCabin.image?.startsWith?.(supabaseUrl);
-	// const imageName = `${Math.random()}-${updatedCabin.image.name}`.replaceAll('/', '');
-	// const imagePath = doesImagePathAlreadyExist
-	// 	? updateCabin.image
-	// 	: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+	const doesImagePathAlreadyExist = updatedCabin.image?.startsWith?.(supabaseUrl);
+	const imageName = `${Math.random()}-${updatedCabin.image.name}`.replaceAll('/', '');
+	const imagePath = doesImagePathAlreadyExist
+		? updateCabin.image
+		: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
 
-	// const { error, data } = await supabase
-	// 	.from('cabins')
-	// 	.update({ ...updatedCabin, image: imagePath })
-	// 	.eq('id', updatedCabin.id);
+	const { error, data } = await supabase
+		.from('cabins')
+		.update({ ...updatedCabin, image: imagePath })
+		.eq('id', id)
+		.select();
 
-	// if (error) {
-	// 	console.error(error);
-	// 	throw new Error('Cabin could not be updated');
-	// }
+	if (error) {
+		console.error(error);
+		throw new Error('Cabin could not be updated');
+	}
 
-	// return data;
+	return data;
 }
 export async function deleteCabin(id) {
 	let { error, data } = await supabase.from('cabins').delete().eq('id', id);
