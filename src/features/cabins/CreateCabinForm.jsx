@@ -13,19 +13,19 @@ const spreadPropsToInput = (props) => {
 };
 
 const mapToSnakeCase = (data) => {
-	return {
-		...data,
-		max_capacity: data.maxCapacity,
-		regular_price: data.regularPrice,
-	};
+	return Object.keys(data).reduce((acc, key) => {
+		const snakeCaseKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+		acc[snakeCaseKey] = data[key];
+		return acc;
+	}, {});
 };
 
 function CreateCabinForm({ cabin = {} }) {
-	const { id: editId, ...editableCabinValues } = cabin;
+	const { id: editId, ...editableCabinValues } = mapToSnakeCase(cabin);
 	const isCabinBeingEdited = Boolean(editId); // check if the cabin is being edited
 
 	const { register, handleSubmit, reset, getValues, formState } = useForm({
-		defaultValues: isCabinBeingEdited ? mapToSnakeCase(editableCabinValues) : {},
+		defaultValues: isCabinBeingEdited ? editableCabinValues : {},
 	});
 	const { errors } = formState;
 
@@ -65,7 +65,6 @@ function CreateCabinForm({ cabin = {} }) {
 	const handleFormSubmit = (data) => {
 		const image = typeof data.image === 'string' ? data.image : data.image[0];
 		if (isCabinBeingEdited) {
-			console.log('data', data);
 			updateCabinAction({ updatedCabinData: { ...data, image }, id: editId });
 		} else {
 			createCabinAction({ ...data, image });
