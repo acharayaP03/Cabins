@@ -26,3 +26,17 @@ export const getToday = function (options = {}) {
 
 export const formatCurrency = (value) =>
 	new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' }).format(value);
+
+export const spreadPropsToInput = (props) => {
+	return {
+		...props,
+	};
+};
+
+export const mapToSnakeCase = (data) => {
+	return Object.keys(data).reduce((acc, key) => {
+		const snakeCaseKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+		acc[snakeCaseKey] = data[key];
+		return acc;
+	}, {});
+};
