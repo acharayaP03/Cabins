@@ -5,20 +5,7 @@ import { toast } from 'react-hot-toast';
 
 import { Button } from '@/ui/Buttons';
 import { Input, Form, FileInput, Textarea, FormRow } from '@/ui/FormComponent';
-
-const spreadPropsToInput = (props) => {
-	return {
-		...props,
-	};
-};
-
-const mapToSnakeCase = (data) => {
-	return Object.keys(data).reduce((acc, key) => {
-		const snakeCaseKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-		acc[snakeCaseKey] = data[key];
-		return acc;
-	}, {});
-};
+import { mapToSnakeCase, spreadPropsToInput } from '@/utils/helpers';
 
 function CreateCabinForm({ cabin = {} }) {
 	const { id: editId, ...editableCabinValues } = mapToSnakeCase(cabin);
@@ -188,7 +175,6 @@ function CreateCabinForm({ cabin = {} }) {
 					})}
 				/>
 			</FormRow>
-
 			<FormRow>
 				{/* type is an HTML attribute! */}
 				<Button variation='secondary' type='reset'>
