@@ -13,8 +13,14 @@ export async function getCabins() {
 }
 
 export async function createCabin(newCabin) {
+	const doesImagePathAlreadyExist =
+		typeof newCabin.image === 'string' && newCabin.image?.startsWith?.(supabaseUrl);
 	const imageName = `${Math.random()}-${newCabin.image?.name}`.replaceAll('/', '');
-	const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
+
+	// if duplicating cabin, use the same image path
+	const imagePath = doesImagePathAlreadyExist
+		? newCabin.image
+		: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
 
 	const { error, data } = await supabase
 		.from('cabins')
@@ -27,6 +33,7 @@ export async function createCabin(newCabin) {
 		throw new Error('Cabin could not be created');
 	}
 	// upload image to supabase storage
+	if (doesImagePathAlreadyExist) return data; // if image already exists, return the data
 	const { error: storageError } = await supabase.storage
 		.from('cabin-images')
 		.upload(imageName, newCabin.image);
