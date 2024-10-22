@@ -40,6 +40,7 @@ function CreateCabinForm({ cabin = {}, onCloseModal }) {
 				{
 					onSuccess: () => {
 						reset(); // reset the form
+						onCloseModal?.();
 					},
 				},
 			);
@@ -49,6 +50,7 @@ function CreateCabinForm({ cabin = {}, onCloseModal }) {
 				{
 					onSuccess: () => {
 						reset(); // reset the form
+						onCloseModal?.();
 					},
 				},
 			);
@@ -158,8 +160,9 @@ function CreateCabinForm({ cabin = {}, onCloseModal }) {
 				/>
 			</FormRow>
 			<FormRow>
-				{/* type is an HTML attribute! */}
-				<Button variation='secondary' type='reset' onClick={onCloseModal}>
+				{/* just in case if this form is used in any other location, @onCloseModal will create 
+				a bug, onCloseModal?.() will help supress that bug if its not passed as props */}
+				<Button variation='secondary' type='reset' onClick={() => onCloseModal?.()}>
 					Cancel
 				</Button>
 				<Button disabled={isCreating}>
