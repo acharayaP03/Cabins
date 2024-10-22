@@ -148,6 +148,10 @@ describe('updateCabin', () => {
 		supabase.from.mockReturnValue({ update: mockUpdate });
 		mockEq.mockResolvedValue({ data: { id: '1' }, error: null });
 
+		supabase.storage.from.mockReturnValue({
+			upload: vi.fn().mockResolvedValueOnce({ error: null }),
+		});
+
 		const updatedCabin = {
 			id: '1',
 			name: 'Cozy Cabin',
@@ -174,6 +178,10 @@ describe('updateCabin', () => {
 		mockUpdate.mockReturnValue({ eq: mockEq });
 		supabase.from.mockReturnValue({ update: mockUpdate });
 		mockEq.mockResolvedValue({ data: { id: '1' }, error: null });
+
+		supabase.storage.from.mockReturnValue({
+			upload: vi.fn().mockResolvedValueOnce({ error: null }),
+		});
 
 		const newImage = new File([''], 'test-image.jpg', { type: 'image/jpeg' });
 		const updatedCabin = {
