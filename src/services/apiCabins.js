@@ -13,7 +13,7 @@ export async function getCabins() {
 }
 
 export async function createCabin(newCabin) {
-	const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll('/', '');
+	const imageName = `${Math.random()}-${newCabin.image?.name}`.replaceAll('/', '');
 	const imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`; // image path to be stored in the database
 
 	const { error, data } = await supabase
@@ -42,17 +42,17 @@ export async function createCabin(newCabin) {
 }
 
 export async function updateCabin(updatedCabin, id) {
-	const doesImagePathAlreadyExist = updatedCabin.image?.startsWith?.(supabaseUrl);
+	const doesImagePathAlreadyExist =
+		typeof updatedCabin.image === 'string' && updatedCabin.image?.startsWith?.(supabaseUrl);
 	const imageName = `${Math.random()}-${updatedCabin.image.name}`.replaceAll('/', '');
 	const imagePath = doesImagePathAlreadyExist
-		? updateCabin.image
+		? updatedCabin.image // Changed from updateCabin.image
 		: `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
 
 	const { error, data } = await supabase
 		.from('cabins')
 		.update({ ...updatedCabin, image: imagePath })
-		.eq('id', id)
-		.select();
+		.eq('id', id);
 
 	if (error) {
 		console.error(error);
