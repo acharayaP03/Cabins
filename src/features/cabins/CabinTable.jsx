@@ -45,6 +45,8 @@ function CabinTable() {
 			})),
 	});
 
+	console.log('cabins', cabins);
+
 	if (isLoading) return <Spinner />;
 
 	return (
