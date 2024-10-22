@@ -1,11 +1,9 @@
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCabin, updateCabin } from '@/services/apiCabins';
-import { toast } from 'react-hot-toast';
-
 import { Button } from '@/ui/Buttons';
 import { Input, Form, FileInput, Textarea, FormRow } from '@/ui/FormComponent';
 import { mapToSnakeCase, spreadPropsToInput } from '@/utils/helpers';
+import { useCreateCabin } from './useCreateCabin';
+import { useUpdateCabin } from './useUpdateCabin';
 
 function CreateCabinForm({ cabin = {} }) {
 	const { id: editId, ...editableCabinValues } = mapToSnakeCase(cabin);
@@ -16,48 +14,8 @@ function CreateCabinForm({ cabin = {} }) {
 	});
 	const { errors } = formState;
 
-	const queryClient = useQueryClient();
-
-	const { mutate: createCabinAction, isLoading: isCreating } = useMutation({
-		mutationFn: (newCabin) => createCabin(newCabin),
-		onSuccess: () => {
-			toast.success('Cabin successfully added');
-			queryClient.invalidateQueries({
-				queryKey: ['cabins'],
-			});
-
-			reset(); // reset the form
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
-	});
-	const { mutate: updateCabinAction, isLoading: isUpdatingCabin } = useMutation({
-		mutationFn: ({ updatedCabinData, id }) => updateCabin(updatedCabinData, id),
-		onSuccess: () => {
-			toast.success('Cabin successfully updated');
-			queryClient.invalidateQueries({
-				queryKey: ['cabins'],
-			});
-
-			reset(); // reset the form
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
-	});
-
-	// this will allow user to disable form during editing and creating
-	const isUserActionInProgress = isCreating || isUpdatingCabin;
-	const handleFormSubmit = (data) => {
-		const image = typeof data.image === 'string' ? data.image : data.image[0];
-		if (isCabinBeingEdited) {
-			updateCabinAction({ updatedCabinData: { ...data, image }, id: editId });
-		} else {
-			createCabinAction({ ...data, image });
-		}
-	};
-
+	const { isCreating, createCabin } = useCreateCabin();
+	const { isUpdatingCabin, updateCabin } = useUpdateCabin();
 	/**
 	 * @description this function is called when there are errors in the form, that has required fields
 	 * @param {*} errors
@@ -72,6 +30,30 @@ function CreateCabinForm({ cabin = {} }) {
 	 * max_capacity, regular_price since these are the keys that the server expects.
 	 * hence why on register function we passing sanke case keys for max_capacity, regular_price.
 	 */
+
+	const isUserActionInProgress = isCreating || isUpdatingCabin;
+	const handleFormSubmit = (data) => {
+		const image = typeof data.image === 'string' ? data.image : data.image[0];
+		if (isCabinBeingEdited) {
+			updateCabin(
+				{ updatedCabinData: { ...data, image }, id: editId },
+				{
+					onSuccess: () => {
+						reset(); // reset the form
+					},
+				},
+			);
+		} else {
+			createCabin(
+				{ ...data, image },
+				{
+					onSuccess: () => {
+						reset(); // reset the form
+					},
+				},
+			);
+		}
+	};
 
 	return (
 		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
