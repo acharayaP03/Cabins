@@ -5,7 +5,7 @@ import { mapToSnakeCase, spreadPropsToInput } from '@/utils/helpers';
 import { useCreateCabin } from './useCreateCabin';
 import { useUpdateCabin } from './useUpdateCabin';
 
-function CreateCabinForm({ cabin = {} }) {
+function CreateCabinForm({ cabin = {}, onCloseModal }) {
 	const { id: editId, ...editableCabinValues } = mapToSnakeCase(cabin);
 	const isCabinBeingEdited = Boolean(editId); // check if the cabin is being edited
 
@@ -159,7 +159,7 @@ function CreateCabinForm({ cabin = {} }) {
 			</FormRow>
 			<FormRow>
 				{/* type is an HTML attribute! */}
-				<Button variation='secondary' type='reset'>
+				<Button variation='secondary' type='reset' onClick={onCloseModal}>
 					Cancel
 				</Button>
 				<Button disabled={isCreating}>
