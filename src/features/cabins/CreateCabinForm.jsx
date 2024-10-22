@@ -58,7 +58,10 @@ function CreateCabinForm({ cabin = {}, onCloseModal }) {
 	};
 
 	return (
-		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
+		<Form
+			onSubmit={handleSubmit(handleFormSubmit, onErrors)}
+			type={onCloseModal ? 'modal' : 'regular'}
+		>
 			<FormRow
 				{...spreadPropsToInput({
 					label: 'Cabin name',
