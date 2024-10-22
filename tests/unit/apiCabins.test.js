@@ -1,6 +1,7 @@
-import { vi, describe, it, afterEach, expect } from 'vitest';
+import { vi, describe, it, afterEach, expect, beforeEach } from 'vitest';
 import supabase from '../../src/services/supabase';
-import { getCabins, deleteCabin, createCabin } from '../../src/services/apiCabins';
+import { supabaseUrl } from '../../src/appConfig';
+import { getCabins, deleteCabin, createCabin, updateCabin } from '../../src/services/apiCabins';
 
 // Mock the supabase client
 vi.mock('../../src/services/supabase', () => ({
@@ -52,18 +53,13 @@ describe('createCabin', () => {
 
 		supabase.from.mockReturnValueOnce({ insert: mockInsert });
 
-		// Mock Supabase storage upload
 		supabase.storage.from.mockReturnValue({
 			upload: vi.fn().mockResolvedValueOnce({ error: null }),
 		});
 
-		// Call the function
 		const result = await createCabin(newCabin);
 
-		// Verify the result - Adjust the assertion to match the object structure
 		expect(result).toEqual(mockData); // No array wrapping here
-
-		// Verify the chain was called correctly
 		expect(mockInsert).toHaveBeenCalledWith([{ ...newCabin, image: expect.any(String) }]);
 		expect(mockSelect).toHaveBeenCalled();
 		expect(mockSingle).toHaveBeenCalled();
@@ -72,22 +68,15 @@ describe('createCabin', () => {
 	it('should throw an error if cabin creation fails', async () => {
 		const newCabin = { name: 'Cozy Cabin', image: new File([], 'cabin.jpg') };
 
-		// Mock the final single() response with an error
 		const mockSingle = vi.fn().mockResolvedValueOnce({
 			data: null,
 			error: { message: 'Cabin could not be created' }, // Proper error structure
 		});
 
-		// Mock the select() method to return the single() spy
 		const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-
-		// Mock the insert() method to return the select() spy
 		const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
-
-		// Mock the from() method to return the insert() spy
 		supabase.from.mockReturnValueOnce({ insert: mockInsert });
 
-		// Call the function and expect it to throw the correct error
 		await expect(createCabin(newCabin)).rejects.toThrow('Cabin could not be created');
 	});
 
@@ -98,20 +87,11 @@ describe('createCabin', () => {
 		};
 
 		const mockData = { id: 1, name: 'Cozy Cabin' };
-
-		// Mock the single() method to return the final response
 		const mockSingle = vi.fn().mockResolvedValueOnce({ data: mockData, error: null });
-
-		// Mock the select() method to return the single() spy
 		const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-
-		// Mock the insert() method to return the select() spy
 		const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
 
-		// Mock the from() method to return the insert() spy
 		supabase.from.mockReturnValueOnce({ insert: mockInsert });
-
-		// Mock the storage upload with an error
 		supabase.storage.from.mockReturnValue({
 			upload: vi.fn().mockResolvedValueOnce({ error: new Error('Image upload failed') }),
 		});
@@ -122,21 +102,114 @@ describe('createCabin', () => {
 
 		supabase.from.mockReturnValueOnce({ delete: mockDelete });
 
-		// Expect the createCabin function to throw an error
 		await expect(createCabin(newCabin)).rejects.toThrow('Cabin image could not be uploaded');
-
-		// Verify that delete().eq() was called with the correct arguments
 		expect(mockEq).toHaveBeenCalledWith('id', mockData.id);
 	});
 });
-
-describe('Update Cabin', () => {
-	afterEach(() => {
+describe('updateCabin', () => {
+	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	describe('when cabin is successfully updated', () => {
-		it('should return the updated cabin', async () => {});
+	it('should update cabin with existing Supabase image path', async () => {
+		// Setup the mock chain
+		const mockEq = vi.fn();
+		const mockUpdate = vi.fn();
+		mockUpdate.mockReturnValue({ eq: mockEq });
+		supabase.from.mockReturnValue({ update: mockUpdate });
+		mockEq.mockResolvedValue({ data: { id: '1' }, error: null });
+
+		const existingImagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/existing-image.jpg`;
+		const updatedCabin = {
+			id: '1',
+			name: 'Cozy Cabin',
+			image: existingImagePath,
+		};
+
+		const result = await updateCabin(updatedCabin, '1');
+
+		expect(result).toEqual({ id: '1' });
+		expect(supabase.from).toHaveBeenCalledWith('cabins');
+		expect(mockUpdate).toHaveBeenCalledWith({
+			...updatedCabin,
+			image: existingImagePath, // Should keep the existing image path
+		});
+		expect(mockEq).toHaveBeenCalledWith('id', '1');
+	});
+
+	it('should generate new image path for non-Supabase URL', async () => {
+		// Mock Math.random for consistent image path
+		const mockRandom = vi.spyOn(Math, 'random');
+		mockRandom.mockReturnValue(0.123456);
+
+		const mockEq = vi.fn();
+		const mockUpdate = vi.fn();
+		mockUpdate.mockReturnValue({ eq: mockEq });
+		supabase.from.mockReturnValue({ update: mockUpdate });
+		mockEq.mockResolvedValue({ data: { id: '1' }, error: null });
+
+		const updatedCabin = {
+			id: '1',
+			name: 'Cozy Cabin',
+			image: 'https://example.com/image.jpg', // Non-Supabase URL
+		};
+
+		const result = await updateCabin(updatedCabin, '1');
+
+		expect(result).toEqual({ id: '1' });
+		expect(mockUpdate).toHaveBeenCalledWith({
+			...updatedCabin,
+			image: expect.stringContaining(`${supabaseUrl}/storage/v1/object/public/cabin-images/`),
+		});
+
+		mockRandom.mockRestore();
+	});
+
+	it('should handle new image file upload', async () => {
+		const mockRandom = vi.spyOn(Math, 'random');
+		mockRandom.mockReturnValue(0.123456);
+
+		const mockEq = vi.fn();
+		const mockUpdate = vi.fn();
+		mockUpdate.mockReturnValue({ eq: mockEq });
+		supabase.from.mockReturnValue({ update: mockUpdate });
+		mockEq.mockResolvedValue({ data: { id: '1' }, error: null });
+
+		const newImage = new File([''], 'test-image.jpg', { type: 'image/jpeg' });
+		const updatedCabin = {
+			id: '1',
+			name: 'Cozy Cabin',
+			image: newImage,
+		};
+
+		const result = await updateCabin(updatedCabin, '1');
+
+		expect(result).toEqual({ id: '1' });
+		expect(mockUpdate).toHaveBeenCalledWith({
+			...updatedCabin,
+			image: `${supabaseUrl}/storage/v1/object/public/cabin-images/0.123456-test-image.jpg`,
+		});
+
+		mockRandom.mockRestore();
+	});
+
+	it('should throw error if update fails', async () => {
+		const mockEq = vi.fn();
+		const mockUpdate = vi.fn();
+		mockUpdate.mockReturnValue({ eq: mockEq });
+		supabase.from.mockReturnValue({ update: mockUpdate });
+		mockEq.mockResolvedValue({
+			data: null,
+			error: { message: 'Update failed' },
+		});
+
+		const updatedCabin = {
+			id: '1',
+			name: 'Cozy Cabin',
+			image: `${supabaseUrl}/storage/v1/object/public/cabin-images/existing-image.jpg`,
+		};
+
+		await expect(updateCabin(updatedCabin, '1')).rejects.toThrow('Cabin could not be updated');
 	});
 });
 
