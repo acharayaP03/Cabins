@@ -5,7 +5,7 @@ import { mapToSnakeCase, spreadPropsToInput } from '@/utils/helpers';
 import { useCreateCabin } from './useCreateCabin';
 import { useUpdateCabin } from './useUpdateCabin';
 
-function CreateCabinForm({ cabin = {} }) {
+function CreateCabinForm({ cabin = {}, onCloseModal }) {
 	const { id: editId, ...editableCabinValues } = mapToSnakeCase(cabin);
 	const isCabinBeingEdited = Boolean(editId); // check if the cabin is being edited
 
@@ -40,6 +40,7 @@ function CreateCabinForm({ cabin = {} }) {
 				{
 					onSuccess: () => {
 						reset(); // reset the form
+						onCloseModal?.();
 					},
 				},
 			);
@@ -49,6 +50,7 @@ function CreateCabinForm({ cabin = {} }) {
 				{
 					onSuccess: () => {
 						reset(); // reset the form
+						onCloseModal?.();
 					},
 				},
 			);
@@ -56,7 +58,10 @@ function CreateCabinForm({ cabin = {} }) {
 	};
 
 	return (
-		<Form onSubmit={handleSubmit(handleFormSubmit, onErrors)}>
+		<Form
+			onSubmit={handleSubmit(handleFormSubmit, onErrors)}
+			type={onCloseModal ? 'modal' : 'regular'}
+		>
 			<FormRow
 				{...spreadPropsToInput({
 					label: 'Cabin name',
@@ -158,8 +163,9 @@ function CreateCabinForm({ cabin = {} }) {
 				/>
 			</FormRow>
 			<FormRow>
-				{/* type is an HTML attribute! */}
-				<Button variation='secondary' type='reset'>
+				{/* just in case if this form is used in any other location, @onCloseModal will create 
+				a bug, onCloseModal?.() will help supress that bug if its not passed as props */}
+				<Button variation='secondary' type='reset' onClick={() => onCloseModal?.()}>
 					Cancel
 				</Button>
 				<Button disabled={isCreating}>
