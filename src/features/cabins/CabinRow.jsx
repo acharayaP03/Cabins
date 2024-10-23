@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+
 import { formatCurrency } from '@/utils/helpers';
 import { useDeleteCabin } from './useDeleteCabin';
-import { HiPencil, HiSquare2Stack, HiTrash } from 'react-icons/hi2';
-
-import CreateCabinForm from './CreateCabinForm';
-import { useCreateCabin } from './useCreateCabin';
 import { mapToSnakeCase } from '../../utils/helpers';
+import { useCreateCabin } from './useCreateCabin';
+
+import { HiPencil, HiSquare2Stack, HiTrash } from 'react-icons/hi2';
+import CreateCabinForm from './CreateCabinForm';
+import { Modal } from '@/ui/Modal';
+import ConfirmDelete from '../../ui/Modal/ConfirmDelete';
 
 const TableRow = styled.div`
 	display: grid;
@@ -49,7 +52,6 @@ const Discount = styled.div`
 `;
 
 function CabinRow({ cabin }) {
-	const [showForm, setShowForm] = useState(false);
 	const { id, name, maxCapacity, regularPrice, discount, image, description } = cabin;
 	const { deleteCabin, isDeleting } = useDeleteCabin();
 	const { isCreating, createCabin } = useCreateCabin();
@@ -69,32 +71,47 @@ function CabinRow({ cabin }) {
 	}
 
 	return (
-		<>
-			<TableRow role='row'>
-				<Img src={image} alt='' />
-				<Cabin role='cell'>{name}</Cabin>
-				<div role='cell'>Fits up to {maxCapacity}</div>
-				<Price role='cell'>{formatCurrency(regularPrice)}</Price>
-				{discount ? (
-					<Discount role='cell'>{formatCurrency(discount)}</Discount>
-				) : (
-					<span>&mdash;</span>
-				)}
-				<div>
-					<button disabled={isCreating} onClick={handleDuplicate}>
-						<HiSquare2Stack />
-					</button>
-					<button onClick={() => setShowForm((show) => !show)}>
-						<HiPencil />
-					</button>
-					<button onClick={() => deleteCabin(id)} disabled={isDeleting}>
-						<HiTrash />
-					</button>
-				</div>
-			</TableRow>
+		<TableRow role='row'>
+			<Img src={image} alt='' />
+			<Cabin role='cell'>{name}</Cabin>
+			<div role='cell'>Fits up to {maxCapacity}</div>
+			<Price role='cell'>{formatCurrency(regularPrice)}</Price>
+			{discount ? (
+				<Discount role='cell'>{formatCurrency(discount)}</Discount>
+			) : (
+				<span>&mdash;</span>
+			)}
+			<div>
+				<button disabled={isCreating} onClick={handleDuplicate}>
+					<HiSquare2Stack />
+				</button>
+				<Modal>
+					<Modal.Open opens='edit'>
+						<button>
+							<HiPencil />
+						</button>
+					</Modal.Open>
+					<Modal.Window name='edit'>
+						<CreateCabinForm cabin={cabin} />
+					</Modal.Window>
 
-			{showForm && <CreateCabinForm cabin={cabin} />}
-		</>
+					<Modal.Open opens='delete'>
+						<button>
+							<HiTrash />
+						</button>
+					</Modal.Open>
+					<Modal.Window name='delete'>
+						<ConfirmDelete
+							resourceName='cabin'
+							disabled={isDeleting}
+							onConfirm={() => {
+								deleteCabin(id);
+							}}
+						/>
+					</Modal.Window>
+				</Modal>
+			</div>
+		</TableRow>
 	);
 }
 
