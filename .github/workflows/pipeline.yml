@@ -1,0 +1,24 @@
+name: PR Tests
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Load & cache dependencies
+        uses: ./.github/actions/dependencies-cache
+      - name: Run test
+        id: test-run
+        run: npm run test:unit
+      - name: Upload test report
+        if: failure() && steps.test-run.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test.json
