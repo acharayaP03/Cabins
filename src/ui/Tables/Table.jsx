@@ -88,8 +88,15 @@ function Row({ children }) {
 	);
 }
 
-function Body({ children }) {
-	return <h3>Body</h3>;
+// example of render props
+function Body({ data, render }) {
+	return (
+		<StyledBody role='rowgroup'>
+			{/* {data.length === 0 ? <Empty>No data available</Empty> : data.map((item) => render(item))} */}
+			{/* short cut is to just do data.map(render) since we are passing item into render props any way */}
+			{data.length === 0 ? <Empty>No data available</Empty> : data.map(render)}
+		</StyledBody>
+	);
 }
 
 Table.Header = Header;
