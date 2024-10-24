@@ -15,7 +15,7 @@ jobs:
         uses: ./.github/actions/dependencies-cache
       - name: Run test
         id: test-run
-        run: npm run test:unit
+        run: npm run test
       - name: Upload test report
         if: failure() && steps.test-run.outcome == 'failure'
         uses: actions/upload-artifact@v3
