@@ -6,14 +6,30 @@ on:
       - develop
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        # load custom action here
+      - name: Load & Cache dependencies
+        uses: ./.github/actions/dependencies-cache
+        with:
+          caching: false
+      - name: Output Information
+        run: echo "Cache used? ${{ steps.dependencies-cache.outputs.used-cache }}"
+      - name: Lint Code base
+        run: npm run lint
   test:
+    needs: ['lint']
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
       - name: Load & cache dependencies
         uses: ./.github/actions/dependencies-cache
-      - name: Run test
+      - name: Run test:unit
+        continue-on-error: true # run other jobs even if this job fails
         id: test-run
         run: npm run test
       - name: Upload test report
