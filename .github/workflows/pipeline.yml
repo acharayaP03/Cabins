@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Load & cache dependencies
         uses: ./.github/actions/dependencies-cache
-      - name: Run test:unit
+      - name: Run test
         continue-on-error: true # run other jobs even if this job fails
         id: test-run
-        run: npm run test
+        run: npm run test:unit
       - name: Upload test report
         if: failure() && steps.test-run.outcome == 'failure'
         uses: actions/upload-artifact@v3
