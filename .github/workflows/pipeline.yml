@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to UAT
         run: echo "Deploying to UAT"
   deploy:
-    needs: [test, uat]
+    needs: [dev, uat]
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
