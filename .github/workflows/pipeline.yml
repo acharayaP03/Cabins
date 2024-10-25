@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Load & cache dependencies
-        uses: ./.github/actions/dependencies-cache
       - name: Set up environment variables
         run: |
           echo "VITE_SUPABAE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
@@ -29,6 +27,7 @@ jobs:
           name: test-report
           path: test.json
   uat:
+    needs: [dev]
     runs-on: ubuntu-latest
     steps:
       - name: Get code
