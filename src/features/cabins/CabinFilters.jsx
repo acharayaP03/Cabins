@@ -1,16 +1,22 @@
 import { TableOperations } from '@/ui/Tables';
 import { Filter } from '@/ui/ActionMenu';
+import { useMemo } from 'react';
+
 function CabinFilters() {
+	const filterProps = useMemo(
+		() => ({
+			filterField: 'discount',
+			options: [
+				{ value: 'all', label: 'All' },
+				{ value: 'no-discount', label: 'No Discount' },
+				{ value: 'with-discount', label: 'With Discount' },
+			],
+		}),
+		[],
+	);
 	return (
 		<TableOperations>
-			<Filter
-				filterField='discount'
-				options={[
-					{ value: 'all', label: 'All' },
-					{ value: 'no-discount', label: 'No Discount' },
-					{ value: 'with-discount', label: 'With Discount' },
-				]}
-			/>
+			<Filter {...filterProps} />
 		</TableOperations>
 	);
 }
