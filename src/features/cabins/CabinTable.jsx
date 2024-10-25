@@ -3,7 +3,7 @@ import { useCabins } from './useCabins';
 import CabinRow from './CabinRow';
 import Spinner from '../../ui/Common/Spinner';
 import Table from '@/ui/Tables/Table';
-import Menus from '@/ui/ActionMenu/Menus';
+import { Menus } from '@/ui/ActionControls';
 import { useSearchParams } from 'react-router-dom';
 
 function CabinTable() {

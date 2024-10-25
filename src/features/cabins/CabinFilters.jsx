@@ -1,5 +1,5 @@
 import { TableOperations } from '@/ui/Tables';
-import { Filter } from '@/ui/ActionMenu';
+import { Filter } from '@/ui/ActionControls';
 import { useMemo } from 'react';
 
 function CabinFilters() {
