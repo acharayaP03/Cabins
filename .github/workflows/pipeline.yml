@@ -29,7 +29,6 @@ jobs:
           name: test-report
           path: test.json
   uat:
-    needs: dev
     runs-on: ubuntu-latest
     steps:
       - name: Get code
@@ -41,7 +40,7 @@ jobs:
       - name: Deploy to UAT
         run: echo "Deploying to UAT"
   deploy:
-    needs: [dev, uat]
+    needs: [uat]
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
