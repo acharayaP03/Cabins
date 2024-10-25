@@ -10,7 +10,7 @@ import CreateCabinForm from './CreateCabinForm';
 import { Modal } from '@/ui/Modal';
 import ConfirmDelete from '@/ui/Modal/ConfirmDelete';
 import Table from '@/ui/Tables/Table';
-import Menus from '@/ui/ActionMenu/Menus';
+import { Menus } from '@/ui/ActionControls';
 
 const Img = styled.img`
 	display: block;
