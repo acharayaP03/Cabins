@@ -34,18 +34,28 @@ const FilterButton = styled.button`
 	}
 `;
 
-export default function Filter({ filters, activeFilter, setActiveFilter }) {
+// export default function Filter({ filters, activeFilter, setActiveFilter }) {
+// 	return (
+// 		<StyledFilter>
+// 			{filters.map((filter) => (
+// 				<FilterButton
+// 					key={filter}
+// 					active={activeFilter === filter}
+// 					onClick={() => setActiveFilter(filter)}
+// 				>
+// 					{filter}
+// 				</FilterButton>
+// 			))}
+// 		</StyledFilter>
+// 	);
+// }
+
+export default function Filter() {
 	return (
 		<StyledFilter>
-			{filters.map((filter) => (
-				<FilterButton
-					key={filter}
-					active={activeFilter === filter}
-					onClick={() => setActiveFilter(filter)}
-				>
-					{filter}
-				</FilterButton>
-			))}
+			<FilterButton>All</FilterButton>
+			<FilterButton>No Discount</FilterButton>
+			<FilterButton>With Discount</FilterButton>
 		</StyledFilter>
 	);
 }
