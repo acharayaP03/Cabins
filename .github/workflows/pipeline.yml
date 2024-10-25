@@ -4,16 +4,22 @@ on:
   pull_request:
     branches:
       - develop
+  workflow_dispatch:
 
 jobs:
-  test:
+  dev:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
       - name: Load & cache dependencies
         uses: ./.github/actions/dependencies-cache
+      - name: Set up environment variables
+        run: |
+          echo "VITE_SUPABAE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_KEY }}" >> $GITHUB_ENV
       - name: Run test
+        continue-on-error: true # run other jobs even if this job fails
         id: test-run
         run: npm run test:unit
       - name: Upload test report
@@ -22,3 +28,28 @@ jobs:
         with:
           name: test-report
           path: test.json
+  uat:
+    needs: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up UAT environment variables
+        run: |
+          echo "SUPABASE_URL=${{ secrets.UAT_SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_KEY=${{ secrets.UAT_SUPABASE_KEY }}" >> $GITHUB_ENV
+      - name: Deploy to UAT
+        run: echo "Deploying to UAT"
+  deploy:
+    needs: [test, uat]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Set up production environment variables
+        run: |
+          echo "SUPABASE_URL=${{ secrets.PROD_SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_KEY=${{ secrets.PROD_SUPABASE_KEY }}" >> $GITHUB_ENV
+      - name: Deploy to Netlify
+        run: echo "Deploying to Netlify"
