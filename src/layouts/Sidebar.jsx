@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Logo } from '@/ui/Common';
-import { MainNav } from '@/ui/ActionMenu';
+import { MainNav } from '@/ui/ActionControls';
 
 const StyledSidebar = styled.aside`
 	background-color: var(--color-grey-0);
