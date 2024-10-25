@@ -8,14 +8,13 @@ export default defineConfig({
 		environment: 'jsdom',
 		setupFiles: 'tests/setupTests.js',
 		globals: true,
-		watch: true,
 		ui: true,
 		coverage: {
-			enabled: true, // Enable coverage reporting
-			reporter: ['text', 'html'], // Generate text and HTML reports
-			all: true, // Include all files, even those not directly tested
+			provider: 'v8', // Use V8 to collect coverage
+			reporter: ['text', 'html', 'json'], // Generate text and HTML reports
 			include: ['tests/**/*.{js,jsx}', 'tests/unit/**/*.test.js'], // Specify which files to include
 			exclude: ['tests/**/*.test.{js,jsx}', 'tests/setupTests.js'],
+			reportsDirectory: './coverage',
 		},
 	},
 	envDir: './', // Load environment variables from the root,
