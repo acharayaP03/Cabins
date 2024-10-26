@@ -21,6 +21,7 @@ export async function getBooking(id) {
  * if there are filter and sort options, they are passed as arguments.
  * @param {Object} filters
  * @param {Object} sortBy
+ * @param {String} filter.methods method to filter db query (eq, gte, lte, etc)
  * @returns
  */
 
@@ -33,7 +34,7 @@ export async function getAllBookings({ filters, sortBy }) {
 
 	console.log('filters', filters);
 	if (filters !== null) {
-		query = query.eq(filters.field, filters.value);
+		query = query[filters.method || 'eq'](filters.field, filters.value);
 	}
 	const { data: allBookings, error } = await query;
 
