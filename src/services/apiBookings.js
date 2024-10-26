@@ -16,12 +16,26 @@ export async function getBooking(id) {
 	return data;
 }
 
-export async function getAllBookings() {
-	const { data: allBookings, error } = await supabase
+/**
+ * @description Get all bookings,
+ * if there are filter and sort options, they are passed as arguments.
+ * @param {Object} filters
+ * @param {Object} sortBy
+ * @returns
+ */
+
+export async function getAllBookings({ filters, sortBy }) {
+	let query = supabase
 		.from('bookings')
 		.select(
 			'id, created_at, start_date, end_date, num_nights, num_guests, status, total_price, cabins(name), guests(full_name, email)',
 		);
+
+	console.log('filters', filters);
+	if (filters !== null) {
+		query = query.eq(filters.field, filters.value);
+	}
+	const { data: allBookings, error } = await query;
 
 	if (error) {
 		console.error(error);
