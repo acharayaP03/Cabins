@@ -32,9 +32,14 @@ export async function getAllBookings({ filters, sortBy }) {
 			'id, created_at, start_date, end_date, num_nights, num_guests, status, total_price, cabins(name), guests(full_name, email)',
 		);
 
-	console.log('filters', filters);
+	// Filter
 	if (filters !== null) {
 		query = query[filters.method || 'eq'](filters.field, filters.value);
+	}
+
+	// Sort
+	if (sortBy) {
+		query = query.order(sortBy.field, { ascending: sortBy.order === 'asc' });
 	}
 	const { data: allBookings, error } = await query;
 
