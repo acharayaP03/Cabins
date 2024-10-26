@@ -40,7 +40,7 @@ export default function Filter({ filterField, options }) {
 
 	const activeFilter = searchParams.get(filterField) || options.at(0).value;
 	const handleClick = (value) => {
-		searchParams.set('discount', value);
+		searchParams.set(filterField, value);
 		setSearchParms(searchParams);
 	};
 	return (
