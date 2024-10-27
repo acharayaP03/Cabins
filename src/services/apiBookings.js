@@ -43,19 +43,19 @@ export async function getAllBookings({ filters, sortBy, page }) {
 	if (sortBy) {
 		query = query.order(sortBy.field, { ascending: sortBy.order === 'asc' });
 	}
-	const { data: allBookings, error, count } = await query;
-
-	if (error) {
-		console.error(error);
-		throw new Error('Bookings could not get loaded');
-	}
 
 	// pagination
 	if (page) {
 		const from = (page - 1) * PAGE_SIZE;
 		const to = from + PAGE_SIZE - 1;
 		query = query.range(from, to);
-		console.log('query', query);
+	}
+
+	const { data: allBookings, error, count } = await query;
+
+	if (error) {
+		console.error(error);
+		throw new Error('Bookings could not get loaded');
 	}
 
 	return { allBookings, count };
