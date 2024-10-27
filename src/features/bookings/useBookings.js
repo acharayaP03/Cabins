@@ -26,14 +26,20 @@ export function useBookings() {
 	const sortByRaw = searchParams.get('sortBy') || 'start_date-desc';
 	const [field, order] = sortByRaw.split('-');
 	const sortBy = { field: mapDbField(field), order };
+
+	/**
+	 * @Pagination filters
+	 * @page - page number
+	 */
+	const page = !searchParams.get('page') ? 1 : Number(searchParams.get('page'));
 	const {
 		isLoading,
-		data: bookings,
+		data: { allBookings: bookings, count } = {}, // given default value to avoid undefined,
 		error,
 	} = useQuery({
-		queryKey: ['bookings', filters, sortBy], // adding filters as dependency to refetch when filters change
-		queryFn: () => getAllBookings({ filters, sortBy }),
+		queryKey: ['bookings', filters, sortBy, page], // adding filters as dependency to refetch when filters change
+		queryFn: () => getAllBookings({ filters, sortBy, page }),
 	});
 
-	return { isLoading, bookings, error };
+	return { isLoading, bookings, error, count };
 }
