@@ -44,6 +44,7 @@ function BookingDetail() {
 				<Button variation='secondary' onClick={moveBack}>
 					Back
 				</Button>
+				{status === 'unconfirmed' && <Button variation='primary'>Check in</Button>}
 			</ButtonGroup>
 		</>
 	);
