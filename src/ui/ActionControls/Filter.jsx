@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
 const StyledFilter = styled.div`
@@ -34,16 +35,24 @@ const FilterButton = styled.button`
 	}
 `;
 
-export default function Filter({ filters, activeFilter, setActiveFilter }) {
+export default function Filter({ filterField, options }) {
+	const [searchParams, setSearchParms] = useSearchParams();
+
+	const activeFilter = searchParams.get(filterField) || options.at(0).value;
+	const handleClick = (value) => {
+		searchParams.set(filterField, value);
+		setSearchParms(searchParams);
+	};
 	return (
 		<StyledFilter>
-			{filters.map((filter) => (
+			{options.map((option) => (
 				<FilterButton
-					key={filter}
-					active={activeFilter === filter}
-					onClick={() => setActiveFilter(filter)}
+					key={option.value}
+					active={option.value === activeFilter}
+					onClick={() => handleClick(option.value)}
+					disabled={option.value === activeFilter}
 				>
-					{filter}
+					{option.label}
 				</FilterButton>
 			))}
 		</StyledFilter>

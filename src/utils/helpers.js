@@ -40,3 +40,31 @@ export const mapToSnakeCase = (data) => {
 		return acc;
 	}, {});
 };
+
+/**
+ * @description mapDbField - This function is used to convert camelcase to snakecase.
+ * this is necessary snake_case is used in the database.
+ * @param {*} keyToTransform
+ * @returns
+ */
+export const mapDbField = (keyToTransform) =>
+	keyToTransform ? keyToTransform.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`) : '';
+
+export const deepMapKeys = (obj) => {
+	// Handle arrays
+	if (Array.isArray(obj)) {
+		return obj.map((item) => deepMapKeys(item));
+	}
+
+	// Handle objects
+	if (obj && typeof obj === 'object') {
+		return Object.keys(obj).reduce((acc, key) => {
+			const camelKey = mapDbField(key);
+			acc[camelKey] = deepMapKeys(obj[key]);
+			return acc;
+		}, {});
+	}
+
+	// Return primitive values as is
+	return obj;
+};
