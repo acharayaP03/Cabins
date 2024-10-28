@@ -81,7 +81,6 @@ function Menus({ children }) {
 	const [parentRef, setParentRef] = useState(null); // this will parent element.
 
 	const close = () => setOpenId('');
-	console.log('openId', openId);
 	const open = (openId) => setOpenId(openId);
 	return (
 		<MenusContext.Provider
@@ -103,7 +102,6 @@ function Toggle({ id }) {
 		});
 
 		setParentRef(e.currentTarget.parentEelement);
-		console.log(boundingRect);
 		openId === id ? close() : open(id);
 	};
 	return (

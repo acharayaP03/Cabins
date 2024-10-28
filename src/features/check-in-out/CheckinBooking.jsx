@@ -11,6 +11,7 @@ import { useMoveBack } from '@/hooks/useMoveBack';
 import { useBooking } from '../bookings/useBooking';
 import { formatCurrency } from '@/utils/helpers';
 import { useCheckin } from './useCheckin';
+import { useSettings } from '../settings/useSettings';
 
 const Box = styled.div`
 	/* Box */
@@ -22,15 +23,18 @@ const Box = styled.div`
 
 function CheckinBooking() {
 	const [confirmPaid, setConfirmPaid] = useState(false);
+	const [addBreakfast, setAddBreakfast] = useState(false);
 	const { booking, isLoading } = useBooking();
 	const moveBack = useMoveBack();
 	const { checkin, isCheckingIn } = useCheckin();
+	const { settings, isLoading: isLoadingSettings } = useSettings();
+
+	console.log('Why this is not working?: ', booking);
 
 	useEffect(() => {
 		setConfirmPaid(booking?.is_paid ?? false);
 	}, [booking]);
-
-	if (isLoading) return <Spinner />;
+	if (isLoading & isLoadingSettings) return <Spinner />;
 	const {
 		id: bookingId,
 		guests,
@@ -40,13 +44,32 @@ function CheckinBooking() {
 		num_nights: numNights,
 	} = booking;
 
+	// calculate breakfast price
+	const optionBreakfastPrice = settings?.breakfastPrice * numGuests * numNights;
+
+	const totalPriceWithBreakfast = formatCurrency(totalPrice + optionBreakfastPrice);
+	const totalPriceBreadDown =
+		formatCurrency(totalPrice) + ' + ' + formatCurrency(optionBreakfastPrice);
+
 	function handleCheckin() {
 		setConfirmPaid((confirm) => !confirm);
 	}
 
 	function handleClick() {
 		if (!confirmPaid) return;
-		checkin(bookingId);
+		// why snakecase? because the API expects snakecase. see the table structure in the database.
+		if (addBreakfast) {
+			checkin({
+				bookingId,
+				breakfast: {
+					has_breakfast: true,
+					extras_price: optionBreakfastPrice,
+					total_price: totalPrice + optionBreakfastPrice,
+				},
+			});
+		} else {
+			checkin({ bookingId, breakfast: {} });
+		}
 	}
 
 	return (
@@ -57,6 +80,22 @@ function CheckinBooking() {
 			</Row>
 
 			<BookingDataBox booking={booking} />
+
+			{!hasBreakfast && (
+				<Box>
+					<Checkbox
+						checked={addBreakfast}
+						onChange={() => {
+							setAddBreakfast((add) => !add);
+							setConfirmPaid(false);
+						}}
+						id='addBreakfast'
+					>
+						Add breakfast for {numGuests} guests for {numNights} nights for a total of{' '}
+						{formatCurrency(optionBreakfastPrice)}.
+					</Checkbox>
+				</Box>
+			)}
 			{/* TODO: on confirm check box, it needs to disabled when payment is received when check in is commited. */}
 			{/* the query will be refetched and this checkbox will be disabled. at the moment we will live with this bug. */}
 			<Box>
@@ -67,7 +106,10 @@ function CheckinBooking() {
 					disabled={confirmPaid || isCheckingIn}
 				>
 					I confirm that {guests.full_name} has paid the total amount of{' '}
-					{formatCurrency(totalPrice)}.
+					{!addBreakfast
+						? formatCurrency(totalPrice)
+						: `${totalPriceWithBreakfast} including breakfast ( ${totalPriceBreadDown} ) `}
+					.
 				</Checkbox>
 			</Box>
 			<ButtonGroup>
