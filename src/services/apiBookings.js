@@ -57,7 +57,9 @@ export async function getAllBookings({ filters, sortBy, page }) {
 		console.error(error);
 		throw new Error('Bookings could not get loaded');
 	}
-
+	/**
+	 * TODO: need to map the data to camelCase before returning it
+	 */
 	return { allBookings, count };
 }
 
