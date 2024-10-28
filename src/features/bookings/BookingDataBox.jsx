@@ -113,7 +113,7 @@ function BookingDataBox({ booking }) {
 		total_price: totalPrice,
 		has_breakfast: hasBreakfast,
 		observations,
-		isPaid,
+		is_paid: isPaid,
 		guests: {
 			full_name: guestName,
 			email,
