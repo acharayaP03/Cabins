@@ -91,7 +91,7 @@ export default function BookingRow({
 					{status === 'unconfirmed' && (
 						<Menus.Button
 							icon={<HiArrowDownOnSquare />}
-							onClick={() => navigate(`/checkin/${bookingId}/edit`)}
+							onClick={() => navigate(`/check-in/${bookingId}`)}
 						>
 							Check in
 						</Menus.Button>
