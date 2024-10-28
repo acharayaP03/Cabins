@@ -29,10 +29,11 @@ function CheckinBooking() {
 	const { checkin, isCheckingIn } = useCheckin();
 	const { settings, isLoading: isLoadingSettings } = useSettings();
 
+	console.log('Why this is not working?: ', booking);
+
 	useEffect(() => {
 		setConfirmPaid(booking?.is_paid ?? false);
 	}, [booking]);
-
 	if (isLoading & isLoadingSettings) return <Spinner />;
 	const {
 		id: bookingId,
@@ -56,7 +57,19 @@ function CheckinBooking() {
 
 	function handleClick() {
 		if (!confirmPaid) return;
-		checkin(bookingId);
+		// why snakecase? because the API expects snakecase. see the table structure in the database.
+		if (addBreakfast) {
+			checkin({
+				bookingId,
+				breakfast: {
+					has_breakfast: true,
+					extras_price: optionBreakfastPrice,
+					total_price: totalPrice + optionBreakfastPrice,
+				},
+			});
+		} else {
+			checkin({ bookingId, breakfast: {} });
+		}
 	}
 
 	return (
