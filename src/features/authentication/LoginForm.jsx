@@ -11,7 +11,15 @@ export default function LoginForm() {
 
 	function handleSubmit(e) {
 		e.preventDefault();
-		login({ email, password });
+		login(
+			{ email, password },
+			{
+				onSettled: () => {
+					setEmail('');
+					setPassword('');
+				},
+			},
+		);
 	}
 
 	if (isLogingIn) <SpinnerMini />;
