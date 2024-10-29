@@ -8,7 +8,7 @@ export function useCheckin() {
 	const navigate = useNavigate();
 	const { mutate: checkin, isLoading: isCheckingIn } = useMutation({
 		mutationFn: ({ bookingId, breakfast }) => {
-			updateBooking(bookingId, { status: 'checked-in', is_paid: true, ...breakfast });
+			return updateBooking(bookingId, { status: 'checked-in', is_paid: true, ...breakfast });
 		},
 		// onSuccess is a callback that will be called when the mutation is successful
 		// it will receive the data returned by the mutationFn
