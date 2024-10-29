@@ -1,7 +1,7 @@
 import supabase from './supabase';
 
 export async function login({ email, password }) {
-	let { data, error } = await supabase.auth.signInWithPassword({
+	const { data, error } = await supabase.auth.signInWithPassword({
 		email,
 		password,
 	});
@@ -16,4 +16,10 @@ export async function login({ email, password }) {
 	return data;
 }
 
-export async function logout() {}
+export async function logout() {
+	const { error } = await supabase.auth.signOut();
+	if (error) {
+		console.error(error);
+		throw new Error(error.message || 'Logout failed');
+	}
+}
