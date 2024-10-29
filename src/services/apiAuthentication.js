@@ -15,3 +15,5 @@ export async function login({ email, password }) {
 
 	return data;
 }
+
+export async function logout() {}
