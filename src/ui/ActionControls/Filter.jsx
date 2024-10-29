@@ -41,6 +41,10 @@ export default function Filter({ filterField, options }) {
 	const activeFilter = searchParams.get(filterField) || options.at(0).value;
 	const handleClick = (value) => {
 		searchParams.set(filterField, value);
+		// avoid error if user is at last page and filter is changed
+		// this will reset the page to 1 if the filter is active.
+		if (searchParams.get('page')) searchParams.set('page', 1);
+
 		setSearchParms(searchParams);
 	};
 	return (
