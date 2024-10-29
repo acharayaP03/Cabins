@@ -1,19 +1,58 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { HiXMark } from 'react-icons/hi2';
 import { createPortal } from 'react-dom';
-import { cloneElement, createContext, useContext, useEffect, useRef, useState } from 'react';
+import { cloneElement, createContext, useContext, useState } from 'react';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
+
+const positions = {
+	center: css`
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	`,
+	top: css`
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+	`,
+	bottom: css`
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+	`,
+};
+
+const getTransformByPosition = (position, isOpen) => {
+	switch (position) {
+		case 'top':
+			return css`
+				transform: translate(-50%, ${isOpen ? '0' : '-100%'});
+			`;
+		case 'bottom':
+			return css`
+				transform: translate(-50%, ${isOpen ? '0' : '100%'});
+			`;
+		default: // center
+			return css`
+				transform: translate(-50%, -50%) ${isOpen ? 'scale(1)' : 'scale(0.95)'};
+			`;
+	}
+};
 
 const StyledModal = styled.div`
 	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
 	background-color: var(--color-grey-0);
 	border-radius: var(--border-radius-lg);
 	box-shadow: var(--shadow-lg);
 	padding: 3.2rem 4rem;
-	transition: all 0.5s;
+	transition: all 0.3s;
+
+	${(props) => positions[props.position || 'center']}
+
+	opacity: ${(props) => (props.isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.isOpen ? 'visible' : 'hidden')};
+
+	${(props) => getTransformByPosition(props.position, props.isOpen)}
 `;
 
 const Overlay = styled.div`
@@ -25,7 +64,10 @@ const Overlay = styled.div`
 	background-color: var(--backdrop-color);
 	backdrop-filter: blur(4px);
 	z-index: 1000;
-	transition: all 0.5s;
+	transition: all 0.3s;
+
+	opacity: ${(props) => (props.isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.isOpen ? 'visible' : 'hidden')};
 `;
 
 const Button = styled.button`
@@ -46,14 +88,12 @@ const Button = styled.button`
 	& svg {
 		width: 2.4rem;
 		height: 2.4rem;
-		/* Sometimes we need both */
-		/* fill: var(--color-grey-500);
-    stroke: var(--color-grey-500); */
 		color: var(--color-grey-500);
 	}
 `;
 
 const ModalContext = createContext();
+
 function Modal({ children }) {
 	const [openName, setOpenName] = useState('');
 	const close = () => setOpenName('');
@@ -66,17 +106,17 @@ function Modal({ children }) {
 
 function Open({ children, opens: opensWindowName }) {
 	const { open } = useContext(ModalContext);
-
 	return cloneElement(children, { onClick: () => open(opensWindowName) });
 }
 
-function Window({ children, name }) {
+function Window({ children, name, position }) {
 	const { openName, close } = useContext(ModalContext);
 	const { ref } = useOutsideClick(close);
-	if (name !== openName) return null;
+	const isOpen = name === openName;
+
 	return createPortal(
-		<Overlay>
-			<StyledModal ref={ref}>
+		<Overlay isOpen={isOpen}>
+			<StyledModal ref={ref} position={position} isOpen={isOpen}>
 				<Button onClick={close}>
 					<HiXMark />
 				</Button>
