@@ -12,8 +12,8 @@ export function useLogin() {
 			return loginApi({ email, password });
 		},
 		onSuccess: (user) => {
-			queryClient.setQueriesData(['user'], user); // update the user query with the new user
-			navigate('/dashboard');
+			queryClient.setQueryData(['user'], user.user); // update the user query with the new user
+			navigate('/dashboard', { replace: true });
 		},
 		onError: (error) => {
 			console.error(error);
