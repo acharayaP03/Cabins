@@ -10,9 +10,6 @@ export async function login({ email, password }) {
 		console.error(error);
 		throw new Error(error.message || 'Login failed');
 	}
-
-	console.log('Authenticated user:', data);
-
 	return data;
 }
 
