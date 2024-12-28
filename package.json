@@ -24,6 +24,7 @@
 		"react-hot-toast": "^2.4.1",
 		"react-icons": "^5.4.0",
 		"react-router-dom": "^6.28.1",
+		"recharts": "^2.15.0",
 		"styled-components": "^6.1.13"
 	},
 	"devDependencies": {
@@ -40,6 +41,7 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.16",
 		"jsdom": "^25.0.1",
+		"prettier": "^3.4.2",
 		"vite": "^4.4.5",
 		"vitest": "^2.1.8"
 	}
