@@ -11,6 +11,9 @@ Here we will allow The nature cabins user to manage bookings, guest and other op
     <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Typescript" />
 </p>
 
+
+<img width="1442" alt="Screenshot 2024-12-28 at 7 58 46 PM" src="https://github.com/user-attachments/assets/d3388c20-f613-42be-ad0f-7c3152d2cc5b" />
+
 ## Operations
 
 - Booking management (CRUD)
