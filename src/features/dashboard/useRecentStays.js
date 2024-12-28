@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
 import { useSearchParams } from 'react-router-dom';
-import { getBookingsAfterDate } from '../../services/apiBookings';
+import { getStaysAfterDate } from '../../services/apiBookings';
 
 export function useRecentStays() {
 	const [searchParams] = useSearchParams();
@@ -9,7 +9,7 @@ export function useRecentStays() {
 
 	const queryDate = subDays(new Date(), numberOfDays).toISOString();
 	const { isLoading, data: stays } = useQuery({
-		queryFn: () => getBookingsAfterDate(queryDate),
+		queryFn: () => getStaysAfterDate(queryDate),
 		queryKey: ['stays', `last-${numberOfDays}`],
 	});
 
@@ -18,5 +18,5 @@ export function useRecentStays() {
 		(stay) => stay.status === 'checked-in' || stay.status === 'checked-out',
 	);
 
-	return { isLoading, stays, confirmedStays };
+	return { isLoading, stays, confirmedStays, numberOfDays };
 }
