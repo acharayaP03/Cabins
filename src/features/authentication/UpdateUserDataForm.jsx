@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { useUser } from './useUser';
+import { useUpdateUser } from './useUpdateUser';
 
 import { Button } from '@/ui/Buttons';
 import { FileInput, Form, FormRow, Input } from '@/ui/FormComponent';
 
-import { useUser } from './useUser';
-
 function UpdateUserDataForm() {
+	const { updateUser, isUpdatingUser } = useUpdateUser();
 	// We don't need the loading state, and can immediately use the user data, because we know that it has already been loaded at this point
 	const {
 		user: {
@@ -19,6 +20,23 @@ function UpdateUserDataForm() {
 
 	function handleSubmit(e) {
 		e.preventDefault();
+		if (!fullName) return;
+		updateUser(
+			{ fullName, avatar },
+			// {
+			// 	onSuccess: () => {
+			// 		setFullName('');
+			// 		setAvatar(null);
+			// 		e.target.reset(); // Reset the form
+			// 	},
+			// },
+		);
+	}
+
+	// handle cancel to reset the form
+	function handleReset() {
+		setFullName(currentFullName);
+		setAvatar(null);
 	}
 
 	return (
@@ -28,6 +46,7 @@ function UpdateUserDataForm() {
 			</FormRow>
 			<FormRow label='Full name'>
 				<Input
+					disabled={isUpdatingUser}
 					type='text'
 					value={fullName}
 					onChange={(e) => setFullName(e.target.value)}
@@ -38,10 +57,10 @@ function UpdateUserDataForm() {
 				<FileInput id='avatar' accept='image/*' onChange={(e) => setAvatar(e.target.files[0])} />
 			</FormRow>
 			<FormRow>
-				<Button type='reset' variation='secondary'>
+				<Button type='reset' variation='secondary' onClick={handleReset}>
 					Cancel
 				</Button>
-				<Button>Update account</Button>
+				<Button disabled={isUpdatingUser}>Update account</Button>
 			</FormRow>
 		</Form>
 	);
