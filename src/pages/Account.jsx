@@ -1,6 +1,6 @@
 import Heading from '../ui/Common/Heading';
 import Row from '../ui/Grid/Row';
-import { UpdateUserDataForm } from '../features/authentication';
+import { UpdatePasswordForm, UpdateUserDataForm } from '../features/authentication';
 function Account() {
 	return (
 		<>
@@ -13,7 +13,7 @@ function Account() {
 
 			<Row>
 				<Heading as='h3'>Update password</Heading>
-				<p>Update user password form</p>
+				<UpdatePasswordForm />
 			</Row>
 		</>
 	);
