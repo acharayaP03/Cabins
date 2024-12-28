@@ -8,7 +8,7 @@ function UpdatePasswordForm() {
 	const { register, handleSubmit, formState, getValues, reset } = useForm();
 	const { errors } = formState;
 
-	const { updateUser, isUpdating } = useUpdateUser();
+	const { updateUser, isUpdatingUser } = useUpdateUser();
 
 	function onSubmit({ password }) {
 		updateUser({ password }, { onSuccess: reset });
@@ -21,7 +21,7 @@ function UpdatePasswordForm() {
 					type='password'
 					id='password'
 					autoComplete='current-password'
-					disabled={isUpdating}
+					disabled={isUpdatingUser}
 					{...register('password', {
 						required: 'This field is required',
 						minLength: {
@@ -37,7 +37,7 @@ function UpdatePasswordForm() {
 					type='password'
 					autoComplete='new-password'
 					id='passwordConfirm'
-					disabled={isUpdating}
+					disabled={isUpdatingUser}
 					{...register('passwordConfirm', {
 						required: 'This field is required',
 						validate: (value) => getValues().password === value || 'Passwords need to match',
@@ -48,7 +48,7 @@ function UpdatePasswordForm() {
 				<Button onClick={reset} type='reset' variation='secondary'>
 					Cancel
 				</Button>
-				<Button disabled={isUpdating}>Update password</Button>
+				<Button disabled={isUpdatingUser}>Update password</Button>
 			</FormRow>
 		</Form>
 	);
