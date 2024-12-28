@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import ErrorBoundary from './ErrorBoundry';
 import styled from 'styled-components';
 
 const StyledAppLayout = styled.div`
@@ -25,14 +26,16 @@ const Container = styled.div`
 `;
 export default function AppLayout() {
 	return (
-		<StyledAppLayout>
-			<Header />
-			<Sidebar />
-			<Main>
-				<Container>
-					<Outlet />
-				</Container>
-			</Main>
-		</StyledAppLayout>
+		<ErrorBoundary>
+			<StyledAppLayout>
+				<Header />
+				<Sidebar />
+				<Main>
+					<Container>
+						<Outlet />
+					</Container>
+				</Main>
+			</StyledAppLayout>
+		</ErrorBoundary>
 	);
 }
