@@ -41,10 +41,18 @@ Here we will allow The nature cabins user to manage bookings, guest and other op
 
 ## Todo
 
-- Duplicate bookings
-- edit bookings
-- Duplicate Booking
-- Checking and Checkout
-- Generate invoice
-- Payment
+- Bookings ( edit, delete, duplicate) [ in progress]
+- booking confirmation email
+- edit Price for cabin
+- Bulk check in checkout
+- Generate invoice (pdf email ti guest)
+- Payment ( stripe )
 - User work flow ( role based user, update user, reset password )
+- Hotel restuarant ( pricing to include on checkin and checkout: needs new field in database)
+- user settings depending on thier setting for dash board [ in progress ]
+
+  ## Technology upgrade
+  - typescript
+  - github action
+  - unit test / end to end test [ in progress ]
+  - deployment [ in progress ]
