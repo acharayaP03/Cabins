@@ -1,4 +1,5 @@
 {
   "singleQuote": false,
-  "semicolon": true
+  "semicolon": true,
+  "tabWidth": 4
 }
