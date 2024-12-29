@@ -11,6 +11,7 @@ import {
     YAxis,
 } from "recharts";
 import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 const StyledSalesChart = styled(DashboardBox)`
     grid-column: 1 / -1;
@@ -23,6 +24,7 @@ const StyledSalesChart = styled(DashboardBox)`
 `;
 
 function SalesChart({ bookings, numberOfDays }) {
+    const { isDarkMode } = useDarkMode();
     // build the data for the chart
     const allDates = eachDayOfInterval({
         start: subDays(new Date(), numberOfDays - 1),
@@ -43,7 +45,7 @@ function SalesChart({ bookings, numberOfDays }) {
                 .reduce((acc, curr) => acc + curr.extras_price, 0),
         };
     });
-    const isDarkMode = false;
+
     const colors = isDarkMode
         ? {
               totalSales: { stroke: "#4f46e5", fill: "#4f46e5" },
