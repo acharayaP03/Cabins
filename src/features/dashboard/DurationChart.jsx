@@ -8,6 +8,7 @@ import {
     ResponsiveContainer,
     Tooltip,
 } from "recharts";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 const ChartBox = styled.div`
     /* Box */
@@ -141,7 +142,7 @@ function prepareData(startData, stays) {
 }
 
 function DurationChart({ confirmedStays }) {
-    const isDarkMode = false;
+    const { isDarkMode } = useDarkMode();
     const startData = isDarkMode ? startDataDark : startDataLight;
 
     //compute data
